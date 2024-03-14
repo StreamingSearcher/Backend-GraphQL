@@ -11,16 +11,10 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options =>
+builder.Services.AddCors(policy =>
 {
-    options.AddPolicy("CorsPolicy", builder =>
-    {
-        builder
-            .WithOrigins("http://localhost:5173", "http://localhost:5500", "http://localhost:5501")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
+    policy.AddDefaultPolicy(options => options.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
+
 });
 
 
@@ -46,12 +40,13 @@ builder.Services.AddDbContext<MediaDbContext>(options =>
 
 builder.Services.AddScoped<IMediaClientWrapper, MediaClientWrapper>(options =>
 {
-    var configuration = options.GetRequiredService<IConfiguration>();
-    var address = configuration["MediaServiceAddress"];
-    if (Environment.GetEnvironmentVariable("MediaServiceAddress") != null)
-    {
-        address = Environment.GetEnvironmentVariable("MediaServiceAddress");
-    }
+var configuration = options.GetRequiredService<IConfiguration>();
+var address = configuration["MediaServiceAddress"];
+if (Environment.GetEnvironmentVariable("MediaServiceAddress") != null)
+{
+    address = Environment.GetEnvironmentVariable("MediaServiceAddress");
+}
+    Console.WriteLine(address);
     return new MediaClientWrapper(address);
 });
 
@@ -78,7 +73,7 @@ builder.Services.AddScoped<IUpdateMediaCommand, UpdateMediaCommand>();
 
 var app = builder.Build();
 
-app.UseCors("CorsPolicy");
+app.UseCors();
 app.MapGraphQL();
 
 app.Run();
