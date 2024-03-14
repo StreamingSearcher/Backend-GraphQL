@@ -27,11 +27,20 @@ builder.Services.AddCors(options =>
 var connectionString = builder.Configuration.GetConnectionString("MongoDB");
 var connectionDBName = builder.Configuration.GetConnectionString("MongoDBName");
 
+var finalConnection = connectionString;
+
+if (Environment.GetEnvironmentVariable("MONGODB_URL") != null)
+{
+    finalConnection = Environment.GetEnvironmentVariable("MONGODB_URL");
+}
+
+
 builder.Services.AddDbContext<MediaDbContext>(options =>
 {
-    options.UseMongoDB(connectionString, connectionDBName);
+    options.UseMongoDB(finalConnection, connectionDBName);
     options.EnableThreadSafetyChecks();
 }, ServiceLifetime.Singleton);
+
 
 
 
@@ -39,6 +48,10 @@ builder.Services.AddScoped<IMediaClientWrapper, MediaClientWrapper>(options =>
 {
     var configuration = options.GetRequiredService<IConfiguration>();
     var address = configuration["MediaServiceAddress"];
+    if (Environment.GetEnvironmentVariable("MediaServiceAddress") != null)
+    {
+        address = Environment.GetEnvironmentVariable("MediaServiceAddress");
+    }
     return new MediaClientWrapper(address);
 });
 
