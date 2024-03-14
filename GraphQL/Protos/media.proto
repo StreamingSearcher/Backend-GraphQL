@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option csharp_namespace = "RelationalMicroservice";
+
+package media;
+
+import "google/protobuf/empty.proto";
+
+// Modelos de request 
+message MediaIdProto {
+	string id = 1;
+}
+message MediaTitleProto {
+	string title = 1;
+}
+
+// Modelo de la ApiTitle
+message ApiTitleListProto {
+  repeated ApiTitleProto results = 1;
+}
+message ApiTitleProto {
+  string id = 1;
+  ApiTitleImageProto image = 2;
+  string title = 3;
+  string title_type = 4;
+  int32 year = 5;
+}
+message ApiTitleImageProto {
+  string url = 1;
+}
+
+// Modelo de la ApiId
+message ApiIdProto {
+  string title = 1;
+  string imdb_id = 2;
+  string overview = 3;
+  repeated ApiIdGenreProto genres = 4;
+  map<string, ApiIdPlatformsProto> streaming_info = 5;
+}
+message ApiIdGenreProto {
+	string name = 1;
+}
+message ApiIdPlatformsProto {
+	repeated ApiIdPlatformProto platforms = 1;
+}
+message ApiIdPlatformProto {
+	string service = 1;
+}
+
+// Modelo de GenresResponse
+message GenresResponseProto {
+	repeated GenreResponseProto genres = 1;
+}
+message GenreResponseProto {
+	string name = 1;
+}
+
+// Modelo de CountrieResponse
+message CountriesResponseProto {
+	repeated CountryResponseProto countries = 1;
+}
+message CountryResponseProto {
+	string code = 1;
+	string name = 2;
+}
+
+
+
+service Media {
+	rpc GetMediaByTitle (MediaTitleProto) returns (ApiTitleListProto) {}
+	rpc GetMediaById (MediaIdProto) returns (ApiIdProto) {}
+	rpc GetAllGenres (google.protobuf.Empty) returns (GenresResponseProto) {}
+	rpc GetAllCountries (google.protobuf.Empty) returns (CountriesResponseProto) {}
+}
